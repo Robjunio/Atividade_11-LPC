@@ -3,11 +3,33 @@ import pygame, sys
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__()
-        self.image = pygame.Surface([20,20])
-        self.image.fill((255, 255, 255))
+        self.is_animating = False
+        self.sprites = []
+        self.sprites.append(pygame.image.load("Assets/mario_andando1.png"))
+        self.sprites.append(pygame.image.load("Assets/mario_andando2.png"))
+        self.sprites.append(pygame.image.load("Assets/mario_andando3.png"))
+        self.sprites.append(pygame.image.load("Assets/mario_andando4.png"))
+        self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos_x, pos_y]
 
+
+    def animate(self):
+        self.is_animating = True
+        
+    def update(self, speed):
+        if self.is_animating == True:
+            self.current_sprite += speed
+            
+            if self.current_sprite >= len(self.sprites):
+                self.current_sprite = 0
+                self.is_animating = False
+
+            self.image = self.sprites[int(self.current_sprite)]
+
+    
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -17,7 +39,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Sprite Animation")
 
 moving_sprites = pygame.sprite.Group()
-player = Player(100,100)
+player = Player(200,200)
 moving_sprites.add(player)
 
 while True:
@@ -25,10 +47,12 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
+        if event.type == pygame.KEYDOWN:
+            player.animate()
 
     screen.fill((0, 0, 0))
     moving_sprites.draw(screen)
+    moving_sprites.update(0.3)
     pygame.display.flip()
     clock.tick(60)
     
